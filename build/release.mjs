@@ -7,6 +7,7 @@ export const INSTALLERS = {
   'win-arm64': 'AgentBridgeApp-win-arm64-Setup.exe',
 };
 export const MANIFEST_ASSET = 'beta-release.json';
+const SHA256 = /^[0-9a-fA-F]{64}$/;
 const TAG = /^v(\d+)\.(\d+)\.(\d+)$/;
 
 function tagParts(tag) {
@@ -52,6 +53,8 @@ export function validateManifest(m) {
     const d = m.downloads?.[key];
     if (!d || d.fileName !== fileName || d.url !== base + fileName) return null;
     if (!Number.isInteger(d.sizeBytes) || d.sizeBytes <= 0) return null;
+    // v1 has no digest yet; when Platform adds one it must be a 64-character hex SHA-256.
+    if (d.sha256 !== undefined && !SHA256.test(d.sha256)) return null;
   }
   return m;
 }

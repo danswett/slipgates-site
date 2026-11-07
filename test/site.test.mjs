@@ -53,6 +53,12 @@ test('selectRelease takes the highest version among complete published Betas', (
 
 test('validateManifest accepts the v1 contract and rejects incomplete or foreign ones', () => {
   assert.ok(validateManifest(manifest()));
+  const badSum = manifest();
+  badSum.downloads['win-x64'].sha256 = 'abc';
+  assert.equal(validateManifest(badSum), null);
+  const goodSum = manifest();
+  goodSum.downloads['win-x64'].sha256 = 'A'.repeat(64);
+  assert.ok(validateManifest(goodSum));
   const noArm = manifest();
   delete noArm.downloads['win-arm64'];
   assert.equal(validateManifest(noArm), null);
@@ -70,6 +76,16 @@ test('download block: ready state links both installers and the release notes', 
   assert.match(html, /Get the beta for Windows/);
   assert.match(html, /Beta 0\.1\.3276 · Nov 7, 2026 · <a href="[^"]+tag\/v0\.1\.3276">Release notes/);
   assert.match(html, /win-arm64|AgentBridgeApp-win-arm64-Setup\.exe/);
+});
+
+test('download block: shows SHA-256 when the manifest has it, says so plainly when it does not', () => {
+  assert.match(renderDownload(manifest(), config), /No SHA-256 checksums are published/);
+  const m = manifest();
+  m.downloads['win-x64'].sha256 = 'A'.repeat(64);
+  m.downloads['win-arm64'].sha256 = 'b'.repeat(64);
+  const html = renderDownload(m, config);
+  assert.match(html, new RegExp(`x64: <code>${'a'.repeat(64)}</code>`));
+  assert.match(html, new RegExp(`Arm64: <code>${'b'.repeat(64)}</code>`));
 });
 
 test('download block: missing metadata falls back to GitHub Releases, never a dead button', () => {
@@ -113,8 +129,17 @@ test('built site: pages exist, links are relative, and nothing loads from anothe
     assert.doesNotMatch(html, /\{\{/, `${p} has an unreplaced placeholder`);
     assert.match(html, /<html lang="en">/);
     assert.doesNotMatch(html, /(src|href)="https?:\/\/(?!github\.com\/)/, `${p} references another origin`);
-    assert.doesNotMatch(html, /<script(?![^>]*src="[^h])[^>]*>[^<]/, `${p} has an inline script`);
+    assert.match(html, /http-equiv="Content-Security-Policy"/, `${p} has no CSP`);
+    assert.doesNotMatch(html, /<script(?![^>]*\ssrc=)/, `${p} has an inline script`);
+    assert.doesNotMatch(html, /\son[a-z]+=|\sstyle=|javascript:/i, `${p} has inline handlers or styles`);
   }
+  const build = (base) => {
+    execFileSync(process.execPath, ['build/build.mjs'], { cwd: root, env: { ...process.env, BETA_MANIFEST_FILE: file, SITE_BASE: base } });
+    return read('404.html');
+  };
+  assert.match(build('/slipgates-site'), /href="\/slipgates-site\/tokens\.css"/);
+  assert.match(build('/slipgates-site/'), /href="\/slipgates-site\/docs\/"/);
+  assert.match(build(''), /href="\/tokens\.css"/);
   assert.match(read('docs/index.html'), /href="\.\.\/tokens\.css"/);
   assert.match(read('index.html'), /href="tokens\.css"/);
   assert.equal(JSON.parse(read('beta-release.json')).tag, 'v0.1.3276');

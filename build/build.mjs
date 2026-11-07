@@ -9,6 +9,16 @@ const src = path.join(root, 'src');
 const dist = path.join(root, 'dist');
 const config = JSON.parse(await readFile(path.join(src, 'site.json'), 'utf8'));
 
+// Everything is self-hosted, so the page may load only from its own origin and may not run inline script.
+const CSP =
+  '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'self\'; style-src \'self\'; img-src \'self\'; font-src \'self\'; base-uri \'none\'; form-action \'none\'">';
+
+// configure-pages gives "" on a custom domain and "/repo" on a project site; links need a trailing slash.
+function siteBase(value) {
+  const base = (value ?? '').trim();
+  return base.endsWith('/') ? base : `${base}/`;
+}
+
 // The manifest comes from a file (tests, local previews) or from the newest complete published Beta.
 async function loadManifest() {
   const file = process.env.BETA_MANIFEST_FILE;
@@ -52,9 +62,10 @@ for await (const file of walk(src)) {
     continue;
   }
   const depth = rel.split(path.sep).length - 1;
-  const rootPath = rel === '404.html' ? process.env.SITE_BASE || '/' : '../'.repeat(depth);
+  const rootPath = rel === '404.html' ? siteBase(process.env.SITE_BASE) : '../'.repeat(depth);
   let html = await readFile(file, 'utf8');
   html = html
+    .replace('<meta charset="utf-8">', `<meta charset="utf-8">\n${CSP}`)
     .replaceAll('{{> header}}', partials.header)
     .replaceAll('{{> footer}}', partials.footer)
     .replaceAll('{{mark-24}}', withClass(mark24, 'mark mark-24'))

@@ -21,8 +21,22 @@ export function renderDownload(manifest, config) {
   <a class="btn" id="get" href="${esc(x64)}">Get the beta for Windows</a>
   <p class="alt" id="alt"><a id="alt-link" href="${esc(arm)}">Windows on Arm? Get the Arm64 version.</a></p>
   <p class="meta" id="meta">Beta ${esc(manifest.version)} · ${esc(formatDate(manifest.publishedAt))} · <a href="${esc(manifest.releaseNotesUrl)}">Release notes</a></p>
+  ${renderChecksums(manifest)}
   <p class="meta" id="notwindows" hidden>${notWindowsLine(config)}</p>
 </div>`;
+}
+
+// Shows each installer's SHA-256 when the manifest carries one; otherwise says plainly that none is published.
+function renderChecksums(manifest) {
+  const rows = [
+    ['x64', manifest.downloads['win-x64']],
+    ['Arm64', manifest.downloads['win-arm64']],
+  ];
+  if (!rows.every(([, d]) => d.sha256)) {
+    return '<p class="meta checksum">No SHA-256 checksums are published for this beta yet.</p>';
+  }
+  const items = rows.map(([label, d]) => `<li>${label}: <code>${esc(d.sha256.toLowerCase())}</code></li>`).join('');
+  return `<div class="meta checksum"><p>SHA-256, to check your download (<code>Get-FileHash &lt;file&gt;</code> in PowerShell):</p><ul>${items}</ul></div>`;
 }
 
 function notWindowsLine(config) {

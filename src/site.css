@@ -32,6 +32,10 @@ h1, h2 { line-height: 1.2; }
 .alt, .meta { margin: var(--ab-space-2) 0 0; font-size: 0.875rem; color: var(--ab-text2); }
 .alt a, .meta a { display: inline-block; padding: var(--ab-space-3) 0; }
 .meta[hidden] { display: none; }
+.checksum p, .checksum ul { margin: 0; }
+.checksum ul { padding-left: var(--ab-space-4); }
+.checksum code { font-family: var(--ab-font-mono); overflow-wrap: anywhere; }
+.steps p a { display: inline-block; padding: var(--ab-space-3) 0; }
 @media (min-width: 480px) { .btn { width: auto; min-width: 20rem; } }
 
 .steps { margin-top: var(--ab-space-12); }
@@ -42,6 +46,6 @@ h1, h2 { line-height: 1.2; }
 .site-footer a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ab-text2); }
 
 @media (forced-colors: active) {
-  .btn { border: 1px solid ButtonText; }
+  .btn { border: 1px solid ButtonText; forced-color-adjust: none; }
   .label { border-color: CanvasText; }
 }
