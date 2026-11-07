@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{{name}}</title>
+<meta name="description" content="Slipgates is instant passage between every agent, every machine and you. Get the beta for Windows.">
+<link rel="stylesheet" href="{{root}}tokens.css">
+<link rel="stylesheet" href="{{root}}site.css">
+<link rel="icon" href="{{root}}favicon.svg" type="image/svg+xml">
+</head>
+<body>
+{{> header}}
+<main id="main">
+  <section class="hero">
+    <h1 class="lockup">{{mark}}<span class="wordmark">{{name}}</span></h1>
+    <p class="intro"><strong>{{name}}</strong> is instant passage between every agent, every machine and you. A question asked on a Dev Box shows up on your phone, and your answer goes straight back.</p>
+    <p><span class="label">Beta</span></p>
+    {{download}}
+  </section>
+  <section class="steps" aria-labelledby="install">
+    <h2 id="install">Install</h2>
+    <!-- Wording follows the beta guide draft (danswett/agent-bridge#1058, #744). Trust signs off on step 2; remove step 2 when signing (#842) lands. -->
+    <ol>
+      <li>Download the installer for your PC. Not sure which? Open Settings &gt; System &gt; About and look at "System type": "x64-based processor" means the Intel or AMD installer, "ARM-based processor" means the Arm64 one.</li>
+      <li>Run it. Windows shows a blue box, <strong>Windows protected your PC</strong>. This is expected: the beta installer is not signed yet. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
+      <li>Slipgates opens. Under <strong>Agents on this machine</strong>, choose <strong>Set up</strong> for each agent you use. Slipgates doesn't install your coding CLI or sign you in to it; do that first.</li>
+    </ol>
+    <p><a href="{{root}}docs/">Beta guide</a></p>
+  </section>
+</main>
+{{> footer}}
+<script type="module" src="{{root}}download.js"></script>
+</body>
+</html>

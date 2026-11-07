@@ -1,0 +1,10 @@
+{
+  "name": "slipgates-site",
+  "private": true,
+  "type": "module",
+  "description": "Static source for slipgates.com. No runtime dependencies.",
+  "scripts": {
+    "build": "node build/build.mjs",
+    "test": "node --test \"test/*.test.mjs\""
+  }
+}
