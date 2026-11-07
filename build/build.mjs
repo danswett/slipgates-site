@@ -73,7 +73,8 @@ for await (const file of walk(src)) {
     .replaceAll('{{download}}', renderDownload(manifest, config))
     .replaceAll('{{root}}', rootPath)
     .replaceAll('{{name}}', config.name)
-    .replaceAll('{{githubUrl}}', config.githubUrl);
+    .replaceAll('{{githubUrl}}', config.githubUrl)
+    .replaceAll('{{releasesUrl}}', config.releasesUrl);
   await mkdir(path.dirname(out), { recursive: true });
   await writeFile(out, html);
 }
