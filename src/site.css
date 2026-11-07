@@ -49,3 +49,5 @@ h1, h2 { line-height: 1.2; }
   .btn { border: 1px solid ButtonText; forced-color-adjust: none; }
   .label { border-color: CanvasText; }
 }
+.confirm { margin: var(--ab-space-6) 0; padding: var(--ab-space-4); border: 1px solid var(--ab-stroke2); border-radius: var(--ab-radius-control); }
+.confirm h2 { margin-top: 0; }
