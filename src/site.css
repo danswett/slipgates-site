@@ -22,6 +22,18 @@ h1, h2 { line-height: 1.2; }
 .lockup { display: flex; align-items: center; gap: 17px; margin: 0 0 var(--ab-space-5); }
 .lockup .mark-lockup { width: 56px; height: 56px; color: var(--ab-bridge); flex: none; }
 .wordmark { font-family: "Slipgates Sans", system-ui, sans-serif; font-weight: 600; font-size: 2.4rem; letter-spacing: var(--ab-tracking-wordmark); color: var(--ab-text); }
+
+/* Home lockup intro: plays once on load. Only opacity and transform change. */
+.lockup .mark-lockup .top { animation: slip-top 400ms cubic-bezier(0, 0, 0, 1) backwards; }
+.lockup .mark-lockup .bot { animation: slip-bot 400ms cubic-bezier(0, 0, 0, 1) 60ms backwards; }
+.lockup .wordmark { animation: slip-word 250ms cubic-bezier(0, 0, 0, 1) 230ms backwards; }
+@keyframes slip-top { from { opacity: 0; transform: translateX(14px); } }
+@keyframes slip-bot { from { opacity: 0; transform: translateX(-14px); } }
+@keyframes slip-word { from { opacity: 0; transform: translateX(-4px); } }
+@keyframes slip-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .lockup .mark-lockup .top, .lockup .mark-lockup .bot, .lockup .wordmark { animation: slip-fade 83ms linear backwards; }
+}
 .intro { font-size: 1.125rem; margin: 0 0 var(--ab-space-4); }
 .label { display: inline-block; padding: 2px var(--ab-space-2); border: 1px solid var(--ab-stroke2); border-radius: var(--ab-radius-pill); font-size: 0.8125rem; color: var(--ab-text2); }
 

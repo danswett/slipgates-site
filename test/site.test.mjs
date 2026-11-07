@@ -145,3 +145,27 @@ test('built site: pages exist, links are relative, and nothing loads from anothe
   assert.equal(JSON.parse(read('beta-release.json')).tag, 'v0.1.3276');
   assert.doesNotMatch(read('site.css') + read('tokens.css'), /url\(["']?https?:/);
 });
+
+test('logo intro: scoped to the home lockup, opacity and transform only, fade-only under reduced motion', () => {
+  const css = readFileSync(path.join(root, 'src/site.css'), 'utf8');
+  const reduced = css.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/)[1];
+  const outside = css.replace(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/, '');
+  const selectors = [...css.matchAll(/^([^@{}\n]+)\{[^}]*animation:/gm)].map((m) => m[1].trim());
+  assert.ok(selectors.length >= 4);
+  for (const s of selectors) assert.match(s, /^\.lockup /, `${s} is not scoped to the lockup`);
+  assert.doesNotMatch(css, /\.(site-header|mark-24)[^{]*\{[^}]*animation/);
+  assert.match(outside, /translateX\(14px\)/);
+  assert.match(outside, /translateX\(-14px\)/);
+  assert.match(outside, /translateX\(-4px\)/);
+  for (const k of css.matchAll(/@keyframes [\w-]+ \{ from \{([^}]*)\}/g)) {
+    assert.doesNotMatch(k[1], /(?:^|;)\s*(?!opacity|transform)[a-z-]+\s*:/, 'keyframes may only change opacity and transform');
+  }
+  assert.match(reduced, /animation: slip-fade 83ms/);
+  assert.doesNotMatch(reduced, /translate|transform/);
+  assert.match(css, /@keyframes slip-fade \{ from \{ opacity: 0; \} \}/);
+  assert.doesNotMatch(css, /@keyframes[^}]*\{[^}]*infinite/);
+  const home = readFileSync(path.join(root, 'dist/index.html'), 'utf8');
+  assert.match(home, /<h1 class="lockup"><svg class="mark mark-lockup" aria-hidden="true"[\s\S]*?<span class="wordmark">Slipgates<\/span><\/h1>/);
+  assert.equal((home.match(/class="top"/g) ?? []).length, 1);
+  assert.doesNotMatch(readFileSync(path.join(root, 'dist/docs/index.html'), 'utf8'), /class="(top|bot)"|mark-lockup/);
+});
