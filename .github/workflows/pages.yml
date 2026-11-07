@@ -3,7 +3,7 @@ name: Pages
 on:
   pull_request:
   push:
-    branches: [main, site/pages]
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
