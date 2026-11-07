@@ -26,7 +26,11 @@ function Get-Raw([string]$Url) {
 
 function Test-Redirect($Response, [string]$Target) {
     $loc = if ($Response) { [string]$Response.Headers['Location'] } else { '' }
-    [bool]($Response -and $Response.StatusCode -in 301, 302, 307, 308 -and $loc -like "https://$Target*")
+    $uri = $null
+    if (-not $Response -or $Response.StatusCode -notin 301, 302, 307, 308) { return $false }
+    # Compare the parsed host exactly; a prefix match would accept slipgates.com.example.org or slipgates.com@other.example.
+    if (-not [Uri]::TryCreate($loc, [UriKind]::Absolute, [ref]$uri)) { return $false }
+    [bool]($uri.Scheme -eq 'https' -and $uri.Host -eq $Target -and -not $uri.UserInfo -and $uri.IsDefaultPort)
 }
 
 # Plain HTTP must redirect to HTTPS on the same host.
