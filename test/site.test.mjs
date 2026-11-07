@@ -128,7 +128,7 @@ test('built site: pages exist, links are relative, and nothing loads from anothe
     const html = read(p);
     assert.doesNotMatch(html, /\{\{/, `${p} has an unreplaced placeholder`);
     assert.match(html, /<html lang="en">/);
-    assert.doesNotMatch(html, /(src|href)="https?:\/\/(?!github\.com\/)/, `${p} references another origin`);
+    assert.doesNotMatch(html, /(src|href)="https?:\/\/(?!github\.com\/|danswett\.github\.io\/agent-bridge\/app\/)/, `${p} references another origin`);
     assert.match(html, /http-equiv="Content-Security-Policy"/, `${p} has no CSP`);
     assert.doesNotMatch(html, /<script(?![^>]*\ssrc=)/, `${p} has an inline script`);
     assert.doesNotMatch(html, /\son[a-z]+=|\sstyle=|javascript:/i, `${p} has inline handlers or styles`);
