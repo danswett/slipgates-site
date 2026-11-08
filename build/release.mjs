@@ -3,8 +3,8 @@
 
 export const REPO = 'danswett/agent-bridge';
 export const INSTALLERS = {
-  'win-x64': 'AgentBridgeApp-win-Setup.exe',
-  'win-arm64': 'AgentBridgeApp-win-arm64-Setup.exe',
+  'win-x64': 'Slipgates-win-Setup.exe',
+  'win-arm64': 'Slipgates-win-arm64-Setup.exe',
 };
 export const MANIFEST_ASSET = 'beta-release.json';
 const SHA256 = /^[0-9a-fA-F]{64}$/;
@@ -53,7 +53,7 @@ export function validateManifest(m) {
     const d = m.downloads?.[key];
     if (!d || d.fileName !== fileName || d.url !== base + fileName) return null;
     if (!Number.isInteger(d.sizeBytes) || d.sizeBytes <= 0) return null;
-    // v1 has no digest yet; when Platform adds one it must be a 64-character hex SHA-256.
+    // The producer always writes sha256; the site treats it as optional but it must be 64-character hex when present.
     if (d.sha256 !== undefined && !SHA256.test(d.sha256)) return null;
   }
   return m;

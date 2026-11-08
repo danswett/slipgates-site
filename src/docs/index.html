@@ -25,10 +25,10 @@
   <ol>
     <li>Get the newest beta from <a href="https://github.com/danswett/agent-bridge/releases">GitHub Releases</a> and download the installer for your PC:
       <ul>
-        <li>Intel or AMD (most PCs): <code>AgentBridgeApp-win-Setup.exe</code></li>
-        <li>Windows on Arm (Snapdragon and similar): <code>AgentBridgeApp-win-arm64-Setup.exe</code></li>
+        <li>Intel or AMD (most PCs): the installer without "arm64" in its name</li>
+        <li>Windows on Arm (Snapdragon and similar): the installer with "arm64" in its name</li>
       </ul>
-      Not sure? Open Settings &gt; System &gt; About and look at "System type". "x64-based processor" means the first file; "ARM-based processor" means the second. The installer files are named <code>AgentBridgeApp</code>, but the app itself is called {{name}}.</li>
+      Not sure? Open Settings &gt; System &gt; About and look at "System type". "x64-based processor" means the first file; "ARM-based processor" means the second.</li>
     <li>Run it. Windows shows a blue box, <strong>Windows protected your PC</strong>. This is expected: the beta installer is not signed yet, and Windows warns about any installer it does not recognize. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
     <li>{{name}} opens. In <strong>Settings</strong>, the <strong>Agents on this machine</strong> section shows whether your coding tools are ready and offers <strong>Set up</strong> or <strong>Repair</strong> for the hooks. If a coding CLI is missing, choose <strong>Install CLI</strong> and {{name}} installs it with Windows Package Manager after you confirm; some need extra Windows components and may ask for administrator approval. Then choose <strong>Set up</strong> to connect its hooks. {{name}} doesn't sign you in to the CLI or trust your project folder; do those in the CLI yourself. If <strong>Set up</strong> can't make an agent ready, tell us which step it stopped at. The app keeps itself up to date and offers <strong>Restart to update</strong> when there is a newer version.</li>
   </ol>
