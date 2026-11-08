@@ -189,7 +189,11 @@ test('logo intro: scoped to the home lockup, opacity and transform only, fade-on
   for (const k of css.matchAll(/@keyframes [\w-]+ \{ from \{([^}]*)\}/g)) {
     assert.doesNotMatch(k[1], /(?:^|;)\s*(?!opacity|transform)[a-z-]+\s*:/, 'keyframes may only change opacity and transform');
   }
-  assert.match(reduced, /animation: slip-fade 83ms/);
+  const ease = 'cubic-bezier\\(0, 0, 0, 1\\)';
+  assert.match(outside, new RegExp(`\\.top \\{ animation: slip-top 700ms ${ease} 400ms backwards; \\}`));
+  assert.match(outside, new RegExp(`\\.bot \\{ animation: slip-bot 700ms ${ease} 500ms backwards; \\}`));
+  assert.match(outside, new RegExp(`\\.wordmark \\{ animation: slip-word 450ms ${ease} 900ms backwards; \\}`));
+  assert.match(reduced, /animation: slip-fade 83ms linear backwards;/);
   assert.doesNotMatch(reduced, /translate|transform/);
   assert.match(css, /@keyframes slip-fade \{ from \{ opacity: 0; \} \}/);
   assert.doesNotMatch(css, /@keyframes[^}]*\{[^}]*infinite/);
