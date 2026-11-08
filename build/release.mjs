@@ -53,7 +53,7 @@ export function validateManifest(m) {
     const d = m.downloads?.[key];
     if (!d || d.fileName !== fileName || d.url !== base + fileName) return null;
     if (!Number.isInteger(d.sizeBytes) || d.sizeBytes <= 0) return null;
-    // v1 has no digest yet; when Platform adds one it must be a 64-character hex SHA-256.
+    // The producer always writes sha256; the site treats it as optional but it must be 64-character hex when present.
     if (d.sha256 !== undefined && !SHA256.test(d.sha256)) return null;
   }
   return m;
