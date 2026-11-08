@@ -153,7 +153,7 @@ test('built site: pages exist, links are relative, and nothing loads from anothe
   writeFileSync(file, JSON.stringify(manifest()));
   execFileSync(process.execPath, ['build/build.mjs'], { cwd: root, env: { ...process.env, BETA_MANIFEST_FILE: file } });
   const read = (p) => readFileSync(path.join(root, 'dist', p), 'utf8');
-  for (const p of ['index.html', 'download/index.html', 'docs/index.html', 'privacy/index.html', '404.html']) {
+  for (const p of ['index.html', 'download/index.html', 'docs/index.html', 'privacy/index.html', 'conditions/index.html', '404.html']) {
     const html = read(p);
     assert.doesNotMatch(html, /\{\{/, `${p} has an unreplaced placeholder`);
     assert.match(html, /<html lang="en">/);
