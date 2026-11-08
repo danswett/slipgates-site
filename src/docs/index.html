@@ -6,6 +6,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex">
 <title>Docs · {{name}}</title>
+<meta name="description" content="Getting started with the Slipgates beta: install on Windows, connect your phone, known issues and uninstall.">
 <link rel="stylesheet" href="{{root}}tokens.css">
 <link rel="stylesheet" href="{{root}}site.css">
 <link rel="icon" href="{{root}}favicon.svg" type="image/svg+xml">
@@ -13,10 +14,46 @@
 <body>
 {{> header}}
 <main id="main" class="prose">
-  <h1>Docs</h1>
-  <!-- Placeholder: the beta guide (#744, draft in #1058) still has [confirm] items. Replace with the finished guide. -->
-  <p>The beta guide isn't published yet.</p>
-  <p><a href="{{root}}">Back to the download</a></p>
+  <h1>Getting started</h1>
+  <!-- Drawn from docs/beta-guide.md in danswett/agent-bridge (#744, merged in #1058). The collection and beta-conditions sections stay on the Privacy page until Compliance clears them. -->
+  <p><span class="label">Beta</span></p>
+
+  <h2>What {{name}} is</h2>
+  <p>{{name}} lets you keep an eye on your AI coding sessions (Copilot CLI, Claude Code, Codex) from your phone. When a session needs you, a notification on your PC and a card on your phone say so, and you can answer its questions, approve or deny what it wants to do, or stop it from wherever you are.</p>
+
+  <h2>Install on Windows</h2>
+  <ol>
+    <li>Get the newest beta from <a href="https://github.com/danswett/agent-bridge/releases">GitHub Releases</a> and download the installer for your PC:
+      <ul>
+        <li>Intel or AMD (most PCs): the installer without "arm64" in its name</li>
+        <li>Windows on Arm (Snapdragon and similar): the installer with "arm64" in its name</li>
+      </ul>
+      Not sure? Open Settings &gt; System &gt; About and look at "System type". "x64-based processor" means the first file; "ARM-based processor" means the second.</li>
+    <li>Run it. Windows shows a blue box, <strong>Windows protected your PC</strong>. This is expected: the beta installer is not signed yet, and Windows warns about any installer it does not recognize. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
+    <li>{{name}} opens. In <strong>Settings</strong>, the <strong>Agents on this machine</strong> section shows whether your coding tools are ready and offers <strong>Set up</strong> or <strong>Repair</strong> for the hooks. If a coding CLI is missing, choose <strong>Install CLI</strong> and {{name}} installs it with Windows Package Manager after you confirm; some need extra Windows components and may ask for administrator approval. Then choose <strong>Set up</strong> to connect its hooks. {{name}} doesn't sign you in to the CLI or trust your project folder; do those in the CLI yourself. If <strong>Set up</strong> can't make an agent ready, tell us which step it stopped at. The app keeps itself up to date and offers <strong>Restart to update</strong> when there is a newer version.</li>
+  </ol>
+
+  <h2>Connect your phone</h2>
+  <ol>
+    <li>On your PC, open {{name}} &gt; <strong>Settings</strong> and, under <strong>Your devices</strong>, choose <strong>Sign in with GitHub</strong>. It shows a code and a GitHub link.</li>
+    <li>On your phone, open <a href="https://danswett.github.io/agent-bridge/app/">the phone app</a> and choose <strong>Sign in with GitHub</strong>. Open the GitHub link it shows, enter the code, and use the same GitHub account as your PC.</li>
+    <li>Return to the phone app. Your PC's sessions appear there.</li>
+  </ol>
+
+  <h2>Known issues</h2>
+  <ul>
+    <li>The installer is unsigned, so Windows warns as described above.</li>
+    <li>On Windows on Arm, use the Arm installer. The Intel/AMD one runs there but we haven't tested it.</li>
+    <li>See the <a href="https://github.com/danswett/agent-bridge/issues">list of open bugs</a> for the rest.</li>
+  </ul>
+
+  <h2>Getting help</h2>
+  <p>For help today, reply privately in the email or Teams conversation your invitation came in. Send only the minimum needed. Remove names, paths, prompts, code, tokens and sign-in codes, and review any screenshot or log before sending it. Do not post support content or personal information in public GitHub issues. If something fails, tell us the first step that failed. If it all worked, tell us that too: a PC session showing on your phone is the end of this guide.</p>
+  <p>What the beta collects is on the <a href="{{root}}privacy/">Privacy</a> page.</p>
+
+  <h2>Uninstall</h2>
+  <p>Settings &gt; Apps &gt; Installed apps &gt; {{name}} &gt; <strong>Uninstall</strong>. This stops the background service and removes what {{name}} added: its scheduled task, its hooks in your CLIs and its install folder. It never removes a CLI or signs you out of an account. Your project files are untouched.</p>
+  <p>Uninstalling does not itself erase server or support records; use the privacy contact on the <a href="{{root}}privacy/">Privacy</a> page for those. Your profile (device key, account, settings and logs) stays in <code>%LOCALAPPDATA%\AgentBridge</code>, so a reinstall picks up where you left off. To remove it too, close {{name}}, uninstall, then delete that folder.</p>
 </main>
 {{> footer}}
 </body>

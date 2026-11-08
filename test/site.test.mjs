@@ -12,6 +12,8 @@ import { apply, chooseState } from '../src/download.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(readFileSync(path.join(root, 'src/site.json'), 'utf8'));
 
+const NEW = ['Slipgates-win-Setup.exe', 'Slipgates-win-arm64-Setup.exe'];
+const OLD = ['AgentBridgeApp-win-Setup.exe', 'AgentBridgeApp-win-arm64-Setup.exe'];
 const asset = (name, size = 100) => ({ name, size, state: 'uploaded', browser_download_url: `https://example.invalid/${name}` });
 const release = (tag, over = {}) => ({
   tag_name: tag,
@@ -63,11 +65,38 @@ test('validateManifest accepts the v1 contract and rejects incomplete or foreign
   delete noArm.downloads['win-arm64'];
   assert.equal(validateManifest(noArm), null);
   const foreign = manifest();
-  foreign.downloads['win-x64'].url = 'https://evil.example/AgentBridgeApp-win-Setup.exe';
+  foreign.downloads['win-x64'].url = 'https://evil.example/Slipgates-win-Setup.exe';
   assert.equal(validateManifest(foreign), null);
   assert.equal(validateManifest({ ...manifest(), schemaVersion: 2 }), null);
   assert.equal(validateManifest({ ...manifest(), version: '9.9.9' }), null);
   assert.equal(validateManifest(null), null);
+});
+
+test('INSTALLERS are exactly the renamed Slipgates downloads', () => {
+  assert.deepEqual(Object.values(INSTALLERS), NEW);
+});
+
+test('selectRelease refuses a release that only has the old installer names', () => {
+  const oldOnly = release('v0.1.5000', { assets: [...OLD, MANIFEST_ASSET].map((n) => asset(n)) });
+  assert.equal(selectRelease([oldOnly]), null);
+  assert.equal(selectRelease([oldOnly, release('v0.1.10')]).tag_name, 'v0.1.10');
+});
+
+test('validateManifest refuses old names and url/fileName mismatches', () => {
+  const base = 'https://github.com/danswett/agent-bridge/releases/download/v0.1.3276/';
+  const oldNames = manifest();
+  oldNames.downloads['win-x64'] = { ...oldNames.downloads['win-x64'], fileName: OLD[0], url: base + OLD[0] };
+  oldNames.downloads['win-arm64'] = { ...oldNames.downloads['win-arm64'], fileName: OLD[1], url: base + OLD[1] };
+  assert.equal(validateManifest(oldNames), null);
+  const urlMismatch = manifest();
+  urlMismatch.downloads['win-x64'].url = base + NEW[1];
+  assert.equal(validateManifest(urlMismatch), null);
+  const wrongTag = manifest();
+  wrongTag.downloads['win-arm64'].url = `https://github.com/danswett/agent-bridge/releases/download/v0.1.1/${NEW[1]}`;
+  assert.equal(validateManifest(wrongTag), null);
+  const wrongName = manifest();
+  wrongName.downloads['win-x64'].fileName = NEW[1];
+  assert.equal(validateManifest(wrongName), null);
 });
 
 test('download block: ready state links both installers and the release notes', () => {
@@ -75,7 +104,7 @@ test('download block: ready state links both installers and the release notes', 
   assert.match(html, /data-state="ready"/);
   assert.match(html, /Get the beta for Windows/);
   assert.match(html, /Beta 0\.1\.3276 · Nov 7, 2026 · <a href="[^"]+tag\/v0\.1\.3276">Release notes/);
-  assert.match(html, /win-arm64|AgentBridgeApp-win-arm64-Setup\.exe/);
+  assert.match(html, /win-arm64|Slipgates-win-arm64-Setup\.exe/);
 });
 
 test('download block: shows SHA-256 when the manifest has it, says so plainly when it does not', () => {
@@ -124,11 +153,11 @@ test('built site: pages exist, links are relative, and nothing loads from anothe
   writeFileSync(file, JSON.stringify(manifest()));
   execFileSync(process.execPath, ['build/build.mjs'], { cwd: root, env: { ...process.env, BETA_MANIFEST_FILE: file } });
   const read = (p) => readFileSync(path.join(root, 'dist', p), 'utf8');
-  for (const p of ['index.html', 'docs/index.html', 'privacy/index.html', '404.html']) {
+  for (const p of ['index.html', 'download/index.html', 'docs/index.html', 'privacy/index.html', '404.html']) {
     const html = read(p);
     assert.doesNotMatch(html, /\{\{/, `${p} has an unreplaced placeholder`);
     assert.match(html, /<html lang="en">/);
-    assert.doesNotMatch(html, /(src|href)="https?:\/\/(?!github\.com\/)/, `${p} references another origin`);
+    assert.doesNotMatch(html, /(src|href)="https?:\/\/(?!github\.com\/|danswett\.github\.io\/agent-bridge\/app\/)/, `${p} references another origin`);
     assert.match(html, /http-equiv="Content-Security-Policy"/, `${p} has no CSP`);
     assert.doesNotMatch(html, /<script(?![^>]*\ssrc=)/, `${p} has an inline script`);
     assert.doesNotMatch(html, /\son[a-z]+=|\sstyle=|javascript:/i, `${p} has inline handlers or styles`);
@@ -144,4 +173,28 @@ test('built site: pages exist, links are relative, and nothing loads from anothe
   assert.match(read('index.html'), /href="tokens\.css"/);
   assert.equal(JSON.parse(read('beta-release.json')).tag, 'v0.1.3276');
   assert.doesNotMatch(read('site.css') + read('tokens.css'), /url\(["']?https?:/);
+});
+
+test('logo intro: scoped to the home lockup, opacity and transform only, fade-only under reduced motion', () => {
+  const css = readFileSync(path.join(root, 'src/site.css'), 'utf8');
+  const reduced = css.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/)[1];
+  const outside = css.replace(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\n\}/, '');
+  const selectors = [...css.matchAll(/^([^@{}\n]+)\{[^}]*animation:/gm)].map((m) => m[1].trim());
+  assert.ok(selectors.length >= 4);
+  for (const s of selectors) assert.match(s, /^\.lockup /, `${s} is not scoped to the lockup`);
+  assert.doesNotMatch(css, /\.(site-header|mark-24)[^{]*\{[^}]*animation/);
+  assert.match(outside, /translateX\(14px\)/);
+  assert.match(outside, /translateX\(-14px\)/);
+  assert.match(outside, /translateX\(-4px\)/);
+  for (const k of css.matchAll(/@keyframes [\w-]+ \{ from \{([^}]*)\}/g)) {
+    assert.doesNotMatch(k[1], /(?:^|;)\s*(?!opacity|transform)[a-z-]+\s*:/, 'keyframes may only change opacity and transform');
+  }
+  assert.match(reduced, /animation: slip-fade 83ms/);
+  assert.doesNotMatch(reduced, /translate|transform/);
+  assert.match(css, /@keyframes slip-fade \{ from \{ opacity: 0; \} \}/);
+  assert.doesNotMatch(css, /@keyframes[^}]*\{[^}]*infinite/);
+  const home = readFileSync(path.join(root, 'dist/index.html'), 'utf8');
+  assert.match(home, /<h1 class="lockup"><svg class="mark mark-lockup" aria-hidden="true"[\s\S]*?<span class="wordmark">Slipgates<\/span><\/h1>/);
+  assert.equal((home.match(/class="top"/g) ?? []).length, 1);
+  assert.doesNotMatch(readFileSync(path.join(root, 'dist/docs/index.html'), 'utf8'), /class="(top|bot)"|mark-lockup/);
 });

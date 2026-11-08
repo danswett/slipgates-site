@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Download · {{name}}</title>
+<meta name="description" content="Download the Slipgates beta for Windows.">
+<link rel="stylesheet" href="{{root}}tokens.css">
+<link rel="stylesheet" href="{{root}}site.css">
+<link rel="icon" href="{{root}}favicon.svg" type="image/svg+xml">
+</head>
+<body>
+{{> header}}
+<main id="main" class="prose">
+  <h1>Download</h1>
+  <p><span class="label">Beta</span></p>
+  <p>The {{name}} beta is for Windows. The installers are hosted on <a href="{{releasesUrl}}">GitHub Releases</a>; this page links to the newest published beta.</p>
+  {{download}}
+  <h2>Which installer?</h2>
+  <p>Open Settings &gt; System &gt; About and look at "System type".</p>
+  <ul>
+    <li><strong>x64-based processor</strong> (Intel or AMD, most PCs): the installer without "arm64" in its name</li>
+    <li><strong>ARM-based processor</strong> (Windows on Arm, such as Snapdragon): the installer with "arm64" in its name</li>
+  </ul>
+  <h2>Before you run it</h2>
+  <p>The beta installer is not signed yet, so Windows shows a blue box, <strong>Windows protected your PC</strong>. This is expected. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</p>
+  <p>Next: the <a href="{{root}}docs/">beta guide</a>.</p>
+  <p><a href="{{releasesUrl}}">All releases on GitHub</a></p>
+</main>
+{{> footer}}
+<script type="module" src="{{root}}download.js"></script>
+</body>
+</html>
