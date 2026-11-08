@@ -3,8 +3,8 @@
 
 export const REPO = 'danswett/agent-bridge';
 export const INSTALLERS = {
-  'win-x64': 'AgentBridgeApp-win-Setup.exe',
-  'win-arm64': 'AgentBridgeApp-win-arm64-Setup.exe',
+  'win-x64': 'Slipgates-win-Setup.exe',
+  'win-arm64': 'Slipgates-win-arm64-Setup.exe',
 };
 export const MANIFEST_ASSET = 'beta-release.json';
 const SHA256 = /^[0-9a-fA-F]{64}$/;

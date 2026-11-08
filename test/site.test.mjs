@@ -12,6 +12,8 @@ import { apply, chooseState } from '../src/download.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(readFileSync(path.join(root, 'src/site.json'), 'utf8'));
 
+const NEW = ['Slipgates-win-Setup.exe', 'Slipgates-win-arm64-Setup.exe'];
+const OLD = ['AgentBridgeApp-win-Setup.exe', 'AgentBridgeApp-win-arm64-Setup.exe'];
 const asset = (name, size = 100) => ({ name, size, state: 'uploaded', browser_download_url: `https://example.invalid/${name}` });
 const release = (tag, over = {}) => ({
   tag_name: tag,
@@ -63,11 +65,38 @@ test('validateManifest accepts the v1 contract and rejects incomplete or foreign
   delete noArm.downloads['win-arm64'];
   assert.equal(validateManifest(noArm), null);
   const foreign = manifest();
-  foreign.downloads['win-x64'].url = 'https://evil.example/AgentBridgeApp-win-Setup.exe';
+  foreign.downloads['win-x64'].url = 'https://evil.example/Slipgates-win-Setup.exe';
   assert.equal(validateManifest(foreign), null);
   assert.equal(validateManifest({ ...manifest(), schemaVersion: 2 }), null);
   assert.equal(validateManifest({ ...manifest(), version: '9.9.9' }), null);
   assert.equal(validateManifest(null), null);
+});
+
+test('INSTALLERS are exactly the renamed Slipgates downloads', () => {
+  assert.deepEqual(Object.values(INSTALLERS), NEW);
+});
+
+test('selectRelease refuses a release that only has the old installer names', () => {
+  const oldOnly = release('v0.1.5000', { assets: [...OLD, MANIFEST_ASSET].map((n) => asset(n)) });
+  assert.equal(selectRelease([oldOnly]), null);
+  assert.equal(selectRelease([oldOnly, release('v0.1.10')]).tag_name, 'v0.1.10');
+});
+
+test('validateManifest refuses old names and url/fileName mismatches', () => {
+  const base = 'https://github.com/danswett/agent-bridge/releases/download/v0.1.3276/';
+  const oldNames = manifest();
+  oldNames.downloads['win-x64'] = { ...oldNames.downloads['win-x64'], fileName: OLD[0], url: base + OLD[0] };
+  oldNames.downloads['win-arm64'] = { ...oldNames.downloads['win-arm64'], fileName: OLD[1], url: base + OLD[1] };
+  assert.equal(validateManifest(oldNames), null);
+  const urlMismatch = manifest();
+  urlMismatch.downloads['win-x64'].url = base + NEW[1];
+  assert.equal(validateManifest(urlMismatch), null);
+  const wrongTag = manifest();
+  wrongTag.downloads['win-arm64'].url = `https://github.com/danswett/agent-bridge/releases/download/v0.1.1/${NEW[1]}`;
+  assert.equal(validateManifest(wrongTag), null);
+  const wrongName = manifest();
+  wrongName.downloads['win-x64'].fileName = NEW[1];
+  assert.equal(validateManifest(wrongName), null);
 });
 
 test('download block: ready state links both installers and the release notes', () => {
@@ -75,7 +104,7 @@ test('download block: ready state links both installers and the release notes', 
   assert.match(html, /data-state="ready"/);
   assert.match(html, /Get the beta for Windows/);
   assert.match(html, /Beta 0\.1\.3276 · Nov 7, 2026 · <a href="[^"]+tag\/v0\.1\.3276">Release notes/);
-  assert.match(html, /win-arm64|AgentBridgeApp-win-arm64-Setup\.exe/);
+  assert.match(html, /win-arm64|Slipgates-win-arm64-Setup\.exe/);
 });
 
 test('download block: shows SHA-256 when the manifest has it, says so plainly when it does not', () => {
